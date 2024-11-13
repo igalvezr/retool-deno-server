@@ -3,7 +3,7 @@ import express from "express";
 import auth_router from "./routes/auth.ts";
 import users_router from "./routes/users.ts";
 
-const PORT = 2345;
+const PORT = parseInt(Deno.env.get("PORT") || "8080");
 
 const server = express();
 
