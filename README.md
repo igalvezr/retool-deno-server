@@ -2,8 +2,8 @@
 
 This project has the goal to become a backend server that can be used with [Retool](https://retool.com/). It uses the following technolgies:
 - **Deno 2.0** for the runtime environment
-- **[MongoDB](www.mongodb.com)** for the NoSQL database in the cloud
-- **[Json Web Token](jwt.io)** for user authentication
+- **[MongoDB](https://www.mongodb.com)** for the NoSQL database in the cloud
+- **[Json Web Token](https://jwt.io)** for user authentication
 - **ExpressJS** for the http server
 - **TypeScript** for all the coding
 
