@@ -1,7 +1,7 @@
 //@deno-types="npm:@types/express"
 import express from "express";
 import { auth_token } from "./auth.ts";
-import doSomethig from "../db/mongo/client.ts";
+import doDatabaseOp from "../db/mongo/client.ts";
 import getUsers from "../db/mongo/get-users.ts";
 import { validateBody } from "./auth.ts";
 import createUser from "../db/mongo/create-user.ts";
@@ -9,13 +9,16 @@ import deleteUserByUsername from "../db/mongo/delete-user.ts";
 
 const users_router = express.Router();
 
+// Authorize the token of the request
 users_router.use(auth_token);
 
+// Get all registered users
 users_router.get("/users", async (_req, res) => {
-    const users = await doSomethig(getUsers);
+    const users = await doDatabaseOp(getUsers);
     res.json(users);
 });
 
+// Create a new user in db
 users_router.post("/user", validateBody, async (req, res) => {
     const { username, password } = req.body;
 
@@ -24,11 +27,12 @@ users_router.post("/user", validateBody, async (req, res) => {
         return;
     }
 
-    const insertedId = await doSomethig(createUser({ username, password }));
+    const insertedId = await doDatabaseOp(createUser({ username, password }));
 
     res.json({ ok: `User created with id ${insertedId}` });
 });
 
+// Delete user by username
 users_router.delete("/:username", async (req, res) => {
     const username = req.params.username;
 
@@ -37,7 +41,7 @@ users_router.delete("/:username", async (req, res) => {
         return;
     }
 
-    const result = await doSomethig(deleteUserByUsername(username));
+    const result = await doDatabaseOp(deleteUserByUsername(username));
 
     res.json({
         ok: `${result.deletedCount} document${

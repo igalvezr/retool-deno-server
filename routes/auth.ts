@@ -8,7 +8,7 @@ import jwt, { VerifyCallback } from "jsonwebtoken";
 
 import users_db from "../db/users-db.ts";
 import User from "../interfaces/User.ts";
-import doSomethig from "../db/mongo/client.ts";
+import doDatabaseOp from "../db/mongo/client.ts";
 import { getUserByIdAndPassword } from "../db/mongo/get-users.ts";
 
 const SECRET = Deno.env.get("JWT_SECRET") || "";
@@ -59,7 +59,7 @@ auth_router.post("/register", (req, res) => {
 auth_router.post("/token", async (req, res) => {
     const { username, password } = req.body;
 
-    if (!(await doSomethig(getUserByIdAndPassword({ username, password })))) {
+    if (!(await doDatabaseOp(getUserByIdAndPassword({ username, password })))) {
         res.status(401).json({ error: "User not found" });
         return;
     }

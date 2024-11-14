@@ -7,6 +7,7 @@ const PORT = parseInt(Deno.env.get("PORT") || "8080");
 
 const server = express();
 
+// Parse the json from all incoming requests
 server.use(express.json());
 
 server.use("/auth", auth_router);

@@ -9,7 +9,7 @@ export default function deleteUserByUsername(username: string) {
             .deleteOne({ username });
 
         console.log(
-            `${result.deletedCount} documents ${
+            `${result.deletedCount} ${
                 result.deletedCount === 1 ? "was" : "were"
             } deleted`
         );

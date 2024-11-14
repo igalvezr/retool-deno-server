@@ -4,7 +4,7 @@ import { MongoClient } from "mongodb";
 const client = new MongoClient(Deno.env.get("MONGO_URI") || "else");
 console.log(`Deno uri: ${Deno.env.get("MONGO_URI")}`);
 
-export default async function doSomethig(
+export default async function doDatabaseOp(
     callback: (param: MongoClient) => Promise<any> | null
 ): Promise<any> {
     try {
