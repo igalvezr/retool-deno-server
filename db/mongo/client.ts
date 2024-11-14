@@ -1,4 +1,4 @@
-import "https://deno.land/x/dotenv@v3.2.2/load.ts";
+//import "https://deno.land/x/dotenv@v3.2.2/load.ts";
 import { MongoClient } from "mongodb";
 
 const client = new MongoClient(Deno.env.get("MONGO_URI") || "else");
@@ -12,8 +12,9 @@ export default async function doDatabaseOp(
         const result = await callback(client);
 
         return result;
-    } catch {
+    } catch (err) {
         console.error("Error while doing a query to mongodb");
+        console.error(err);
     } finally {
         await client.close();
     }
