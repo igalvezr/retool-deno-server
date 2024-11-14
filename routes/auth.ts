@@ -8,12 +8,15 @@ import jwt, { VerifyCallback } from "jsonwebtoken";
 
 import users_db from "../db/users-db.ts";
 import User from "../interfaces/User.ts";
+import doSomethig from "../db/mongo/client.ts";
+import { getUserByIdAndPassword } from "../db/mongo/get-users.ts";
 
 const SECRET = Deno.env.get("JWT_SECRET") || "";
 console.log(`Secret: ${SECRET}`);
 
 const auth_router = express.Router();
 
+// Middleware to validate the presence of a body
 export const validateBody = (
     req: Request,
     res: Response,
@@ -29,12 +32,15 @@ export const validateBody = (
     next();
 };
 
+// Ping the server
 auth_router.get("/ping", (_req, res) => {
     res.json({ status: "ok" });
 });
 
+// Validate the body for every route from now on
 auth_router.use(validateBody);
 
+// Register a new user in the database
 auth_router.post("/register", (req, res) => {
     const { username, password } = req.body;
 
@@ -49,14 +55,11 @@ auth_router.post("/register", (req, res) => {
     res.json({ ok: "User regitered successfuly" });
 });
 
-auth_router.post("/token", (req, res) => {
+// Get the token - Log in
+auth_router.post("/token", async (req, res) => {
     const { username, password } = req.body;
 
-    if (
-        !users_db.find(
-            (user) => user.username === username && user.password === password
-        )
-    ) {
+    if (!(await doSomethig(getUserByIdAndPassword({ username, password })))) {
         res.status(401).json({ error: "User not found" });
         return;
     }
@@ -66,6 +69,7 @@ auth_router.post("/token", (req, res) => {
     res.json({ ok: "Token created", token });
 });
 
+// Validate the given token
 auth_router.post("/authenticate", (req, res) => {
     if (!req.body.token) {
         res.status(401).json({ error: "No token found" });
@@ -86,6 +90,7 @@ auth_router.post("/authenticate", (req, res) => {
 
 export default auth_router;
 
+// Middleware to validate the token, used in other routes
 export const auth_token = (req: Request, res: Response, next: NextFunction) => {
     const header = req.headers["authorization"];
 
