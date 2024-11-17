@@ -1,4 +1,4 @@
-import "https://deno.land/x/dotenv@v3.2.2/load.ts"; // WARNING: Delete for deployment in Deno deploy
+//import "https://deno.land/x/dotenv@v3.2.2/load.ts"; // WARNING: Delete for deployment in Deno deploy
 import { MongoClient } from "mongodb";
 
 const client = new MongoClient(Deno.env.get("MONGO_URI") || "else");
