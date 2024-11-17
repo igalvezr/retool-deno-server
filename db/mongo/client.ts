@@ -1,8 +1,8 @@
-//import "https://deno.land/x/dotenv@v3.2.2/load.ts";
+import "https://deno.land/x/dotenv@v3.2.2/load.ts"; // WARNING: Delete for deployment in Deno deploy
 import { MongoClient } from "mongodb";
 
 const client = new MongoClient(Deno.env.get("MONGO_URI") || "else");
-console.log(`Deno uri: ${Deno.env.get("MONGO_URI")}`);
+console.log(`Client initialized with URI: ${Deno.env.get("MONGO_URI")}`);
 
 export default async function doDatabaseOp(
     callback: (param: MongoClient) => Promise<any> | null

@@ -9,7 +9,7 @@ import jwt, { VerifyCallback } from "jsonwebtoken";
 import users_db from "../db/users-db.ts";
 import User from "../interfaces/User.ts";
 import doDatabaseOp from "../db/mongo/client.ts";
-import { getUserByIdAndPassword } from "../db/mongo/get-users.ts";
+import { getUserByUsernameAndPassword } from "../db/mongo/get-users.ts";
 
 const SECRET = Deno.env.get("JWT_SECRET") || "";
 console.log(`Secret: ${SECRET}`);
@@ -41,12 +41,19 @@ auth_router.get("/ping", (_req, res) => {
 auth_router.use(validateBody);
 
 // Register a new user in the database
-auth_router.post("/register", (req, res) => {
-    const { username, password } = req.body;
+auth_router.post("/register", async (req, res) => {
+    const { username, password, role_code } = req.body;
 
-    const user: User = { username, password };
+    if (!username || !password || !role_code) {
+        res.status(400).json({ error: "Invalid parameters" });
+        return;
+    }
 
-    if (users_db.find((user) => user.username === username)) {
+    // Create the user object
+    const user: User = { username, password, role_code };
+
+    // Check if the user already exists in the database
+    if (await doDatabaseOp(getUserByUsernameAndPassword(user))) {
         res.status(401).json({ error: "User already registered" });
         return;
     }
@@ -59,12 +66,24 @@ auth_router.post("/register", (req, res) => {
 auth_router.post("/token", async (req, res) => {
     const { username, password } = req.body;
 
-    if (!(await doDatabaseOp(getUserByIdAndPassword({ username, password })))) {
+    if (!username || !password) {
+        res.status(400).json({ error: "Invalid parameters" });
+        return;
+    }
+
+    const user = { username, password };
+
+    if (!(await doDatabaseOp(getUserByUsernameAndPassword(user)))) {
         res.status(401).json({ error: "User not found" });
         return;
     }
 
-    const token = jwt.sign(username, SECRET);
+    const completeUser = await doDatabaseOp(getUserByUsernameAndPassword(user));
+
+    const token = jwt.sign(
+        { username, role_code: completeUser.role_code },
+        SECRET
+    );
 
     res.json({ ok: "Token created", token });
 });
@@ -106,6 +125,13 @@ export const auth_token = (req: Request, res: Response, next: NextFunction) => {
             res.status(401).json({ error: "Invalid token" });
             return;
         }
+
+        // If the token is valid, also decode it
+        const decoded = jwt.decode(token);
+        if (!req.body) {
+            req.body = {};
+        }
+        req.body.decoded = decoded;
 
         next();
     };

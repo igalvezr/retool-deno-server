@@ -8,18 +8,19 @@ export default async function getUsers(client: MongoClient) {
         .collection("users")
         .find()
         .toArray();
-    console.log(`Users: `);
-    usersArray.forEach((user, index) => console.log(`${index}: ${user}`));
 
     return usersArray;
 }
 
-export function getUserByIdAndPassword(user: User) {
+export function getUserByUsernameAndPassword({
+    username,
+    password,
+}: User | { username: string; password: string }) {
     return async (client: MongoClient) => {
         const result = await client
             .db(Deno.env.get("DB_NAME"))
             .collection("users")
-            .findOne(user);
+            .findOne({ username, password });
         console.log(`User lookup result:`);
         console.log(result);
 
